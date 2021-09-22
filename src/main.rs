@@ -122,7 +122,7 @@ fn tick(time: Res<Time>, mut timer: ResMut<MainTimer>, mut board: ResMut<Board>,
             board.total_collapsed += collapsed;
         }
         // println!("\x1B[2J\x1B[1;1H{}\nlast : {:?}\ntop : {:?}", *board, board.last_collapses, board.top_collapses);
-        println!("\x1B[2J\x1B[1;1Hlast : {:?}\ntop : {:?}", board.last_collapses, board.top_collapses);
+        println!("\x1B[2J\x1B[1;1Hlast : {:?}\ntop : {:?}\n[f] faster, [s] slower, period : {:?}", board.last_collapses, board.top_collapses, timer.0.duration());
         for (index, (_, mut sprite)) in sprites.iter_mut().enumerate() {
             sprite.scale = match board.cells[index] {
                 0 => Vec3::splat(0.0),  //" ",
@@ -153,7 +153,23 @@ fn main() {
         .insert_resource(MainTimer(Timer::new(sleep, true)))
         .insert_resource(board)
         .add_system(tick.system())
+        .add_system(Keyboard_handling.system())
         .run()
+}
+
+fn Keyboard_handling(mut timer: ResMut<MainTimer>, keys: Res<Input<KeyCode>>, btns: Res<Input<MouseButton>>) {
+    if keys.just_pressed(KeyCode::F) {
+        if timer.0.duration() >= time::Duration::from_millis(10) {
+            let duration = timer.0.duration();
+            timer.0.set_duration(duration - time::Duration::from_millis(10));
+        }
+    }
+    if keys.just_pressed(KeyCode::S) {
+        if timer.0.duration() <= time::Duration::from_millis(10000) {
+            let duration = timer.0.duration();
+            timer.0.set_duration(duration + time::Duration::from_millis(10));
+        }
+    }
 }
 
 fn setup(
