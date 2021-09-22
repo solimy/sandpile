@@ -122,7 +122,7 @@ fn tick(time: Res<Time>, mut timer: ResMut<MainTimer>, mut board: ResMut<Board>,
             board.total_collapsed += collapsed;
         }
         // println!("\x1B[2J\x1B[1;1H{}\nlast : {:?}\ntop : {:?}", *board, board.last_collapses, board.top_collapses);
-        //println!("\x1B[2J\x1B[1;1Hlast : {:?}\ntop : {:?}", board.last_collapses, board.top_collapses);
+        println!("\x1B[2J\x1B[1;1Hlast : {:?}\ntop : {:?}", board.last_collapses, board.top_collapses);
         for (index, (_, mut sprite)) in sprites.iter_mut().enumerate() {
             sprite.scale = match board.cells[index] {
                 0 => Vec3::splat(0.0),  //" ",
