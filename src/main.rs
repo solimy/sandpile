@@ -157,17 +157,32 @@ fn main() {
         .run()
 }
 
-fn Keyboard_handling(mut timer: ResMut<MainTimer>, keys: Res<Input<KeyCode>>, btns: Res<Input<MouseButton>>) {
-    if keys.just_pressed(KeyCode::F) {
-        if timer.0.duration() >= time::Duration::from_millis(10) {
+fn Keyboard_handling(time: Res<Time>, mut timer: ResMut<MainTimer>, keys: Res<Input<KeyCode>>, btns: Res<Input<MouseButton>>) {
+    unsafe {
+        static mut last_press: time::Duration = time::Duration::from_millis(0);
+        let now = time.time_since_startup();
+    
+        if keys.just_pressed(KeyCode::F) {
             let duration = timer.0.duration();
-            timer.0.set_duration(duration - time::Duration::from_millis(10));
+            let increment = if now - last_press > time::Duration::from_millis(500) {10} else {100};
+            
+            timer.0.set_duration(if duration < time::Duration::from_millis(increment) {
+                time::Duration::from_millis(0)
+            } else {
+                duration - time::Duration::from_millis(increment)
+            });
+            last_press = now;
         }
-    }
-    if keys.just_pressed(KeyCode::S) {
-        if timer.0.duration() <= time::Duration::from_millis(10000) {
+        if keys.just_pressed(KeyCode::S) {
             let duration = timer.0.duration();
-            timer.0.set_duration(duration + time::Duration::from_millis(10));
+            let increment = if now - last_press > time::Duration::from_millis(500) {10} else {100};
+        
+            timer.0.set_duration(if duration > time::Duration::from_millis(10000) {
+                time::Duration::from_millis(10000)
+            } else {
+                duration + time::Duration::from_millis(increment)
+            });
+            last_press = now;
         }
     }
 }
